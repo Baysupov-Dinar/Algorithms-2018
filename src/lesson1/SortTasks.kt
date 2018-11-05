@@ -2,6 +2,8 @@
 
 package lesson1
 
+import java.io.File
+
 /**
  * Сортировка времён
  *
@@ -31,8 +33,29 @@ package lesson1
  * В случае обнаружения неверного формата файла бросить любое исключение.
  */
 fun sortTimes(inputName: String, outputName: String) {
-    TODO()
+    val input = File(inputName).bufferedReader()
+    val writer = File(outputName).bufferedWriter()
+    val sorted = mutableListOf<Int>()
+    val list = (input.readLines().map { it -> it.split(':') })
+    var i = 0
+    var k = 0
+    if (inputName.isEmpty()) throw IllegalArgumentException()
+    while (i <= list.lastIndex) {
+        sorted.add("${list[i][0].toInt() * 3600 + list[i][1].toInt() * 60 + list[i][2].toInt()}.".toInt())
+        i++
+    }
+    while (k <= sorted.lastIndex) {
+        val tmp = sorted.sorted()[k]
+        writer.write("${doubleDigitNumber(tmp / 3600)}:"
+                + "${doubleDigitNumber((tmp / 60) % 60)}:" + doubleDigitNumber(tmp % 60))
+        writer.newLine()
+        k++
+    }
+    writer.close()
 }
+
+fun doubleDigitNumber(n: Int) = if (n in 0..9) "0$n" else "$n"
+
 
 /**
  * Сортировка адресов
@@ -95,7 +118,14 @@ fun sortAddresses(inputName: String, outputName: String) {
  * 121.3
  */
 fun sortTemperatures(inputName: String, outputName: String) {
-    TODO()
+    val array = File(inputName).readLines().map { x -> x.toDouble() }
+    val sorted = array.sorted()
+    val writer = File(outputName).bufferedWriter()
+    sorted.forEach { line ->
+        writer.write(line.toString())
+        writer.newLine()
+    }
+    writer.close()
 }
 
 /**
