@@ -1,6 +1,6 @@
 package lesson3
 
-import java.util.SortedSet
+import java.util.*
 import kotlin.NoSuchElementException
 
 // Attention: comparable supported but comparator is not
@@ -11,8 +11,8 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
     override var size = 0
         private set
 
-    private class Node<T>(val value: T) {
 
+    private class Node<T>(var value: T) {
         var left: Node<T>? = null
 
         var right: Node<T>? = null
@@ -54,8 +54,28 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
      * Удаление элемента в дереве
      * Средняя
      */
+    private fun delete(node: Node<T>, element: T): Node<T>? {
+        val comparison = element.compareTo(node.value)
+        if (comparison < 0) node.left = delete(node.left!!, element)
+        else if (comparison > 0) node.right = delete(node.right!!, element)
+        else {
+            if (node.left != null && node.right != null) {
+                var clone = node.right
+                while (clone?.left != null) {
+                    clone = clone.left
+                }
+                node.value = clone!!.value
+                node.right = delete(node.right!!, node.value)
+            } else if (node.left != null) return node.left
+            else return node.right
+        }
+        return node
+    }
+
     override fun remove(element: T): Boolean {
-        TODO()
+        root = delete(root!!, element)
+        size--
+        return true
     }
 
     override operator fun contains(element: T): Boolean {
@@ -66,6 +86,23 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
     private fun find(value: T): Node<T>? =
             root?.let { find(it, value) }
 
+    private fun findParent(element: T): Node<T>? {
+        var parent: Node<T>? = null
+        var current = root
+        while (current != null) {
+            val comparison = current.value.compareTo(element)
+            if (comparison < 0) {
+                parent = current
+                current = current.right
+            } else if (comparison > 0) {
+                parent = current
+                current = current.left
+            } else break
+
+        }
+        return parent
+    }
+
     private fun find(start: Node<T>, value: T): Node<T> {
         val comparison = value.compareTo(start.value)
         return when {
@@ -75,22 +112,59 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
         }
     }
 
+    private fun leftest(element: Node<T>?): Node<T>? {
+        var current = element
+        while (current?.left != null) {
+            current = current.left!!
+            println(current.value.toString() + " левее")
+        }
+        println(current?.value.toString() + " самый левый")
+        return current
+    }
+
     inner class BinaryTreeIterator : MutableIterator<T> {
 
         private var current: Node<T>? = null
+        private var stack: Stack<Node<T>>? = null
+
+        init {
+            stack = Stack()
+            current = root
+            stack?.push(root)
+            while (current?.left != null) {
+                current = current?.left
+                stack?.push(current)
+            }
+        }
 
         /**
          * Поиск следующего элемента
          * Средняя
          */
         private fun findNext(): Node<T>? {
-            TODO()
+            if (stack!!.isEmpty()) return null
+            current = stack?.pop()
+            var fork = current
+
+            if (fork?.right != null) {
+                fork = fork.right
+                stack!!.push(fork)
+                while (fork?.left != null) {
+                    fork = fork.left
+                    stack!!.push(fork)
+                }
+            }
+            return current
         }
+
+        //T=O(n)
+        //R=O(n)
+        //где n - высота дерева
 
         override fun hasNext(): Boolean = findNext() != null
 
         override fun next(): T {
-            current = findNext()
+            findNext()
             return (current ?: throw NoSuchElementException()).value
         }
 
