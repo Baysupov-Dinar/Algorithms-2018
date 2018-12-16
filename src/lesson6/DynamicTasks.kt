@@ -2,6 +2,7 @@
 
 package lesson6
 
+
 /**
  * Наибольшая общая подпоследовательность.
  * Средняя
@@ -14,8 +15,39 @@ package lesson6
  * При сравнении подстрок, регистр символов *имеет* значение.
  */
 fun longestCommonSubSequence(first: String, second: String): String {
-    TODO()
+    val firstLength = first.length
+    val secondLength = second.length
+    val matches = Array(secondLength + 1) { IntArray(firstLength + 1) }
+
+    for (i in 0 until secondLength) {
+        for (j in 0 until firstLength) {
+            if (first[j] == second[i]) {
+                matches[i + 1][j + 1] = matches[i][j] + 1
+            } else {
+                matches[i + 1][j + 1] = Math.max(matches[i][j + 1], matches[i + 1][j])
+            }
+        }
+    }
+    val result = StringBuilder(Math.max(firstLength, secondLength))
+    var fl = firstLength
+    var sl = secondLength
+    while (sl > 0 && fl > 0) {
+        when {
+            first[fl - 1] == second[sl - 1] -> {
+                result.append(second[sl - 1])
+                sl--
+                fl--
+            }
+            matches[sl - 1][fl] > matches[sl][fl - 1] -> sl--
+            else -> fl--
+        }
+    }
+    return result.reverse().toString()
 }
+//T = O(m + n)
+//R = O(m + n)
+//где m - длина первой строки
+// и n - длина второй строки
 
 /**
  * Наибольшая возрастающая подпоследовательность

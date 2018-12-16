@@ -29,6 +29,12 @@ abstract class AbstractDynamicTests {
 Наследник всех своих родных.
                 """.trimIndent()
         ))
+        assertEquals("", longestCommonSubSequence("", ""))
+        assertEquals("   ", longestCommonSubSequence("   ", "      "))
+        assertEquals(" +  = ", longestCommonSubSequence("1337 + 3228 = 4565", "4 + 4 = 1"))
+        assertEquals(" = ,145923536", longestCommonSubSequence("pi = 3,1415926535 8979323846", "e = 2,7182818284 5904523536"))
+
+
     }
 
     fun longestIncreasingSubSequence(longestIncreasingSubSequence: (List<Int>) -> List<Int>) {
